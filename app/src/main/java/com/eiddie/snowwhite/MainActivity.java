@@ -1,8 +1,8 @@
 package com.eiddie.snowwhite;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
 
 import com.tomerrosenfeld.customanalogclockview.CustomAnalogClock;
@@ -15,6 +15,9 @@ import org.mcsoxford.rss.RSSReader;
 import org.mcsoxford.rss.RSSReaderException;
 
 public class MainActivity extends Activity {
+
+    RSSFeed feed;
+    private TextView marqueText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,23 +34,43 @@ public class MainActivity extends Activity {
 
         CustomAnalogClock customAnalogClock = (CustomAnalogClock) findViewById(R.id.analog_clock);
         customAnalogClock.setAutoUpdate(true);
+
+        marqueText = (TextView) this.findViewById(R.id.text_news_marque);
+
+        marqueText.setSelected(true);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        RSSReader reader = new RSSReader();
+        final String uri = "https://news.google.com/news?cf=all&hl=ko&pz=1&ned=kr&output=rss";
 
-        String uri = "https://news.google.com/news?cf=all&hl=ko&pz=1&ned=kr&output=rss";
-        try {
-            RSSFeed feed = reader.load(uri);
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                RSSReader reader = new RSSReader();
+                try {
+                    feed = reader.load(uri);
+                } catch (RSSReaderException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
 
-            Log.d("feed",""+feed.getItems().size());
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                StringBuffer newsBuffer = new StringBuffer();
+                newsBuffer.append(feed.getItems().get(0).getTitle()).append("   ");
+                newsBuffer.append(feed.getItems().get(1).getTitle()).append("   ");
+                newsBuffer.append(feed.getItems().get(2).getTitle()).append("   ");
+                newsBuffer.append(feed.getItems().get(3).getTitle()).append("   ");
+                newsBuffer.append(feed.getItems().get(4).getTitle()).append("   ");
 
-        } catch (RSSReaderException e) {
-            e.printStackTrace();
-        }
+                marqueText.setText(newsBuffer.toString());
+            }
+
+        }.execute();
 
     }
 }

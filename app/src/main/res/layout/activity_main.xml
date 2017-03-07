@@ -37,4 +37,19 @@
 
     </LinearLayout>
 
+    <TextView
+        android:layout_below="@+id/analog_clock"
+        android:id="@+id/text_news_marque"
+        android:textColor="@android:color/white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:padding="16dp"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        tools:text="Create a Marquee (Scrolling Text) in Android Using TextView. Android Marquee (Scrolling Text) Tutorial with Example"
+        android:textSize="24sp" />
+
 </RelativeLayout>
