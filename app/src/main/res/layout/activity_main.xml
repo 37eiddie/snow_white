@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
-    tools:context="com.eiddie.snowwhite.MainActivity"
-    android:padding="20dp">
+    android:padding="20dp"
+    tools:context="com.eiddie.snowwhite.MainActivity">
 
     <com.tomerrosenfeld.customanalogclockview.CustomAnalogClock
         android:id="@+id/analog_clock"
@@ -25,31 +25,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
-            android:textSize="30dp"/>
+            android:textSize="30dp" />
 
         <TextView
             android:id="@+id/text_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="03월 07, 화"
+            android:textColor="@android:color/white"
             android:textSize="20dp"
-            android:textColor="@android:color/white"/>
+            tools:text="03월 07, 화" />
 
     </LinearLayout>
 
-    <TextView
-        android:layout_below="@+id/analog_clock"
-        android:id="@+id/text_news_marque"
-        android:textColor="@android:color/white"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/marqueList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:ellipsize="marquee"
-        android:marqueeRepeatLimit="marquee_forever"
-        android:padding="16dp"
-        android:scrollHorizontally="true"
-        android:singleLine="true"
-        tools:text="Create a Marquee (Scrolling Text) in Android Using TextView. Android Marquee (Scrolling Text) Tutorial with Example"
-        android:textSize="24sp" />
+        android:layout_below="@+id/analog_clock"
+        android:layout_margin="5dp"
+        android:clipToPadding="false"
+        android:nestedScrollingEnabled="false" />
 
 </RelativeLayout>
