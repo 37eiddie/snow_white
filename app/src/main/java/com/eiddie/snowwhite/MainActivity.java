@@ -5,23 +5,34 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.eiddie.snowwhite.adapter.NewsScrollAdapter;
-import com.tomerrosenfeld.customanalogclockview.CustomAnalogClock;
+import com.eiddie.snowwhite.model.Weather;
+import com.eiddie.snowwhite.model.WeatherItem;
+import com.eiddie.snowwhite.service.WeatherService;
 
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.mcsoxford.rss.RSSFeed;
 import org.mcsoxford.rss.RSSItem;
 import org.mcsoxford.rss.RSSReader;
 import org.mcsoxford.rss.RSSReaderException;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends Activity {
 
@@ -49,21 +60,21 @@ public class MainActivity extends Activity {
         }
     };
 
+    WeatherService weatherService;
+    private int rainfall;
+    private int sky;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         LocalDate date = LocalDate.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("MMM dd, E");
 
-        String str = date.toString(dateTimeFormatter);
-
-        TextView textView = (TextView) findViewById(R.id.text_date);
-        textView.setText(str);
-
-        CustomAnalogClock customAnalogClock = (CustomAnalogClock) findViewById(R.id.analog_clock);
-        customAnalogClock.setAutoUpdate(true);
+        TextView textDateView = (TextView) findViewById(R.id.text_date);
+        TextView textDayView = (TextView) findViewById(R.id.text_day);
+        textDayView.setText(date.toString(DateTimeFormat.forPattern("EEEE")));
+        textDateView.setText(date.toString(DateTimeFormat.forPattern("MMMM dd")));
 
         newsScrollAdapter = new NewsScrollAdapter(new ArrayList<RSSItem>());
 
@@ -96,6 +107,13 @@ public class MainActivity extends Activity {
                 }
             }
         });
+
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://newsky2.kma.go.kr/service/SecndSrtpdFrcstInfoService2/")
+                .addConverterFactory(GsonConverterFactory.create()).build();
+
+        weatherService = retrofit.create(WeatherService.class);
     }
 
     @Override
@@ -123,5 +141,65 @@ public class MainActivity extends Activity {
             }
 
         }.execute();
+
+        Call<Weather> call = weatherService.getDegree();
+        call.enqueue(new Callback<Weather>() {
+            @Override
+            public void onResponse(Call<Weather> call, Response<Weather> response) {
+                TextView degreeTextView = (TextView) findViewById(R.id.text_degree);
+
+                List<WeatherItem> weatherItemList = response.body().getResponseItem().getBodyItem().getItems().getWeatherItemList();
+                for (WeatherItem weatherItem : weatherItemList) {
+                    if("T1H".equals(weatherItem.getCategory())){
+                        Log.d("degree",""+weatherItem.getObsrValue());
+                        degreeTextView.setText(weatherItem.getObsrValue() + " °");
+                    }
+
+                    if("PTY".equals(weatherItem.getCategory())){
+                        rainfall = (int) weatherItem.getObsrValue();
+                    }
+
+                    if("SKY".equals(weatherItem.getCategory())){
+                        sky = (int) weatherItem.getObsrValue();
+                    }
+                }
+
+                ImageView weatherIcon = (ImageView) findViewById(R.id.weather_icon);
+
+                if (0 != rainfall){
+                    switch (rainfall) {
+                        case 1:
+                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_weather_rain));
+                            break;
+                        case 2:
+                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_weather_rain_snow));
+                            break;
+                        case 3:
+                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_weather_snow));
+                            break;
+                    }
+                } else {
+                    switch (sky) {
+                        case 1:
+                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_weather_sunny));
+                            break;
+                        case 2:
+                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_weather_little_cloudy));
+                            break;
+                        case 3:
+                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_weather_cloudy));
+                            break;
+                        case 4:
+                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_weather_much_cloudy));
+                            break;
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Weather> call, Throwable t) {
+                Log.e("error",t.getMessage());
+            }
+        });
     }
 }
