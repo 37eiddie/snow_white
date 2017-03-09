@@ -1,0 +1,21 @@
+package com.eiddie.snowwhite.model;
+
+import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
+
+/**
+ * Created by actmember on 3/9/17.
+ */
+public class AirQuality {
+    @SerializedName("list")
+    List<AirQualityItem> airQualityItemList;
+
+    public List<AirQualityItem> getAirQualityItemList() {
+        return airQualityItemList;
+    }
+
+    public void setAirQualityItemList(List<AirQualityItem> airQualityItemList) {
+        this.airQualityItemList = airQualityItemList;
+    }
+}

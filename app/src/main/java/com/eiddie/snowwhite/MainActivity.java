@@ -1,6 +1,7 @@
 package com.eiddie.snowwhite;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,9 +15,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.eiddie.snowwhite.adapter.NewsScrollAdapter;
+import com.eiddie.snowwhite.model.AirQuality;
+import com.eiddie.snowwhite.model.AirQualityItem;
 import com.eiddie.snowwhite.model.Weather;
 import com.eiddie.snowwhite.model.WeatherItem;
+import com.eiddie.snowwhite.service.AirQualityService;
 import com.eiddie.snowwhite.service.WeatherService;
+import com.tsengvn.typekit.TypekitContextWrapper;
 
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
@@ -61,6 +66,8 @@ public class MainActivity extends Activity {
     };
 
     WeatherService weatherService;
+    AirQualityService airQualityService;
+
     private int rainfall;
     private int sky;
 
@@ -109,11 +116,17 @@ public class MainActivity extends Activity {
         });
 
 
-        Retrofit retrofit = new Retrofit.Builder()
+        Retrofit weatherRetrofit = new Retrofit.Builder()
                 .baseUrl("http://newsky2.kma.go.kr/service/SecndSrtpdFrcstInfoService2/")
                 .addConverterFactory(GsonConverterFactory.create()).build();
 
-        weatherService = retrofit.create(WeatherService.class);
+        weatherService = weatherRetrofit.create(WeatherService.class);
+
+        Retrofit airQualityRetrofit = new Retrofit.Builder()
+                .baseUrl("http://openapi.airkorea.or.kr/openapi/services/rest/")
+                .addConverterFactory(GsonConverterFactory.create()).build();
+
+        airQualityService = airQualityRetrofit.create(AirQualityService.class);
     }
 
     @Override
@@ -142,6 +155,61 @@ public class MainActivity extends Activity {
 
         }.execute();
 
+        getWeatherInfo();
+        getAirQualityInfo();
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
+    }
+
+    private void getAirQualityInfo() {
+        Call<AirQuality> call = airQualityService.getAirQualityInfo();
+        call.enqueue(new Callback<AirQuality>() {
+            @Override
+            public void onResponse(Call<AirQuality> call, Response<AirQuality> response) {
+                List<AirQualityItem> airQualityItemList = response.body().getAirQualityItemList();
+
+                AirQualityItem airQualityItem = airQualityItemList.get(0);
+
+                Log.d("air",airQualityItem.getTotalAirGrade() + "");
+
+                int airQuality = airQualityItem.getTotalAirGrade();
+
+                TextView textDustGrade = (TextView) findViewById(R.id.text_dust_grade);
+                ImageView iconDustGrade = (ImageView) findViewById(R.id.icon_dust_grade);
+                TextView textPm10Value= (TextView) findViewById(R.id.text_pm_10_value);
+                textPm10Value.setText(airQualityItem.getPm10Value()+" ㎍/㎥");
+
+                switch (airQuality){
+                    case 1:
+                        textDustGrade.setText("좋음");
+                        iconDustGrade.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_very_satisfied));
+                        break;
+                    case 2:
+                        textDustGrade.setText("보통");
+                        iconDustGrade.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_satisfied));
+                        break;
+                    case 3:
+                        textDustGrade.setText("나쁨");
+                        iconDustGrade.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_dissatisfied));
+                        break;
+                    case 4:
+                        textDustGrade.setText("매우나쁨");
+                        iconDustGrade.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_very_dissatisfied));
+                        break;
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AirQuality> call, Throwable t) {
+                Log.e("error", t.getMessage());
+            }
+        });
+    }
+
+    private void getWeatherInfo() {
         Call<Weather> call = weatherService.getDegree();
         call.enqueue(new Callback<Weather>() {
             @Override
