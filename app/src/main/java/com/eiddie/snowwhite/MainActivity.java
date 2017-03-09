@@ -10,7 +10,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -45,13 +44,7 @@ public class MainActivity extends Activity {
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private RecyclerView newsRecyclerView;
-    private boolean foundTotalPixel = true;
-    private int totalItemCount;
-    private int totalMovedPixel;
-    private int totalPixel;
     private NewsScrollAdapter newsScrollAdapter;
-
-    //http://newsky2.kma.go.kr/service/SecndSrtpdFrcstInfoService2/ForecastGrib?serviceKey=6oROxkNtYkj%2FF8CNNXqLy70feyJsHbKjXJwdH7KnkCqFpwsi9rr8RKJrYfep%2BYVd9vqBso9ffxuggVDTV8%2FKJw%3D%3D&base_date=20170308&base_time=0500&nx=59&ny=127
 
     private final Runnable SCROLLING_RUNNABLE = new Runnable() {
 
@@ -61,6 +54,7 @@ public class MainActivity extends Activity {
             final int pixelsToMove = 3;
 
             newsRecyclerView.scrollBy(pixelsToMove, 0);
+
             mHandler.postDelayed(this, duration);
         }
     };
@@ -70,6 +64,7 @@ public class MainActivity extends Activity {
 
     private int rainfall;
     private int sky;
+    private LinearLayoutManager layoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,34 +78,18 @@ public class MainActivity extends Activity {
         textDayView.setText(date.toString(DateTimeFormat.forPattern("EEEE")));
         textDateView.setText(date.toString(DateTimeFormat.forPattern("MMMM dd")));
 
-        newsScrollAdapter = new NewsScrollAdapter(new ArrayList<RSSItem>());
-
         newsRecyclerView = (RecyclerView) findViewById(R.id.marqueList);
-        final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         newsRecyclerView.setLayoutManager(layoutManager);
+        newsScrollAdapter = new NewsScrollAdapter(new ArrayList<RSSItem>());
         newsRecyclerView.setAdapter(newsScrollAdapter);
 
         newsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                totalMovedPixel = totalMovedPixel + dx;
-                totalItemCount = layoutManager.getItemCount();
-                if (foundTotalPixel) {
-                    if (totalItemCount > 2) {
-                        View headerView = layoutManager.getChildAt(0);
-                        View itemView = layoutManager.getChildAt(1);
-
-                        if (itemView != null && headerView != null) {
-                            totalPixel = ((totalItemCount - 2) * itemView.getWidth()) + (1 * headerView.getWidth());
-                            foundTotalPixel = false;
-                        }
-                    }
-                }
-
-                if (!foundTotalPixel && totalMovedPixel >= totalPixel) {
+                if(!newsRecyclerView.canScrollHorizontally(dx)){
                     newsRecyclerView.setAdapter(new NewsScrollAdapter(feed.getItems()));
-                    totalMovedPixel = 0;
                 }
             }
         });
