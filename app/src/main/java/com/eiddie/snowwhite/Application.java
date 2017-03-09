@@ -8,7 +8,6 @@ public class Application extends android.app.Application{
     @Override
     public void onCreate() {
         super.onCreate();
-        Typekit.getInstance()
-                .addNormal(Typekit.createFromAsset(this, "fonts/NanumBarunpenR.ttf"));
+        Typekit.getInstance().addNormal(Typekit.createFromAsset(this, "fonts/NanumBarunpenR.ttf"));
     }
 }

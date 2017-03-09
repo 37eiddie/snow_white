@@ -23,7 +23,6 @@ import com.eiddie.snowwhite.service.WeatherService;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
 import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
 import org.mcsoxford.rss.RSSFeed;
 import org.mcsoxford.rss.RSSItem;
 import org.mcsoxford.rss.RSSReader;
@@ -71,13 +70,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LocalDate date = LocalDate.now();
-
-        TextView textDateView = (TextView) findViewById(R.id.text_date);
-        TextView textDayView = (TextView) findViewById(R.id.text_day);
-        textDayView.setText(date.toString(DateTimeFormat.forPattern("EEEE")));
-        textDateView.setText(date.toString(DateTimeFormat.forPattern("MMMM dd")));
-
         newsRecyclerView = (RecyclerView) findViewById(R.id.marqueList);
         layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -94,7 +86,6 @@ public class MainActivity extends Activity {
             }
         });
 
-
         Retrofit weatherRetrofit = new Retrofit.Builder()
                 .baseUrl("http://newsky2.kma.go.kr/service/SecndSrtpdFrcstInfoService2/")
                 .addConverterFactory(GsonConverterFactory.create()).build();
@@ -106,6 +97,7 @@ public class MainActivity extends Activity {
                 .addConverterFactory(GsonConverterFactory.create()).build();
 
         airQualityService = airQualityRetrofit.create(AirQualityService.class);
+
     }
 
     @Override
@@ -136,7 +128,9 @@ public class MainActivity extends Activity {
 
         getWeatherInfo();
         getAirQualityInfo();
+
     }
+
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -157,26 +151,26 @@ public class MainActivity extends Activity {
                 int airQuality = airQualityItem.getTotalAirGrade();
 
                 TextView textDustGrade = (TextView) findViewById(R.id.text_dust_grade);
-                ImageView iconDustGrade = (ImageView) findViewById(R.id.icon_dust_grade);
                 TextView textPm10Value= (TextView) findViewById(R.id.text_pm_10_value);
                 textPm10Value.setText(airQualityItem.getPm10Value()+" ㎍/㎥");
 
+                //ImageView iconDustGrade = (ImageView) findViewById(R.id.icon_dust_grade);
                 switch (airQuality){
                     case 1:
                         textDustGrade.setText("좋음");
-                        iconDustGrade.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_very_satisfied));
+                        //iconDustGrade.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_very_satisfied));
                         break;
                     case 2:
                         textDustGrade.setText("보통");
-                        iconDustGrade.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_satisfied));
+                        //iconDustGrade.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_satisfied));
                         break;
                     case 3:
                         textDustGrade.setText("나쁨");
-                        iconDustGrade.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_dissatisfied));
+                        //iconDustGrade.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_dissatisfied));
                         break;
                     case 4:
                         textDustGrade.setText("매우나쁨");
-                        iconDustGrade.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_very_dissatisfied));
+                        //iconDustGrade.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_very_dissatisfied));
                         break;
                 }
             }
@@ -189,11 +183,13 @@ public class MainActivity extends Activity {
     }
 
     private void getWeatherInfo() {
-        Call<Weather> call = weatherService.getDegree();
+        // - 하늘상태(SKY) 코드 : 맑음(1), 구름조금(2), 구름많음(3), 흐림(4)
+        // - 강수형태(PTY) 코드 : 없음(0), 비(1), 비/눈(2), 눈(3) 여기서 비/눈은 비와 눈이 섞여 오는 것을 의미 (진눈개비)
+        Call<Weather> call = weatherService.getDegree(LocalDate.now().toString("yyyyMMdd"),LocalDate.now().toString("HHmm"));
         call.enqueue(new Callback<Weather>() {
             @Override
             public void onResponse(Call<Weather> call, Response<Weather> response) {
-                TextView degreeTextView = (TextView) findViewById(R.id.text_degree);
+                TextView degreeTextView = (TextView) findViewById(R.id.text_temperature);
 
                 List<WeatherItem> weatherItemList = response.body().getResponseItem().getBodyItem().getItems().getWeatherItemList();
                 for (WeatherItem weatherItem : weatherItemList) {
@@ -212,32 +208,31 @@ public class MainActivity extends Activity {
                 }
 
                 ImageView weatherIcon = (ImageView) findViewById(R.id.weather_icon);
-
                 if (0 != rainfall){
                     switch (rainfall) {
                         case 1:
-                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_weather_rain));
+                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.rain));
                             break;
                         case 2:
-                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_weather_rain_snow));
+                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.sleet));
                             break;
                         case 3:
-                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_weather_snow));
+                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.snow));
                             break;
                     }
                 } else {
                     switch (sky) {
                         case 1:
-                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_weather_sunny));
+                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.clear_day));
                             break;
                         case 2:
-                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_weather_little_cloudy));
+                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.partly_cloudy_day));
                             break;
                         case 3:
-                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_weather_cloudy));
+                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.cloudy));
                             break;
                         case 4:
-                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_weather_much_cloudy));
+                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.cloudy));
                             break;
                     }
                 }

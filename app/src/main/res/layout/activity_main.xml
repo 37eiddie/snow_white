@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,122 +8,122 @@
     android:padding="20dp"
     tools:context="com.eiddie.snowwhite.MainActivity">
 
-    <LinearLayout
-        android:id="@+id/weather_layout"
+    <!-- Weather -->
+    <TextView
+        android:id="@+id/text_temperature"
+        style="@style/TemperatureStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:gravity="left"
+        tools:text="14.6°" />
+
+    <ImageView
+        android:id="@+id/weather_icon"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
+        android:layout_alignBottom="@id/text_temperature"
+        android:layout_marginBottom="15dp"
+        android:layout_marginStart="5dp"
+        android:layout_toEndOf="@id/text_temperature"
+        android:scaleType="fitXY"
+        tools:src="@drawable/partly_cloudy_day" />
+
+    <!-- Time and date -->
+    <TextClock
+        android:id="@+id/time"
+        style="@style/TimeStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:format12Hour="h\uee01mm"
+        android:format24Hour="H\uee01mm"
+        android:gravity="end" />
+
+    <TextClock
+        android:id="@+id/day_of_the_week"
+        style="@style/DateStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/time"
+        android:format12Hour="EEEE\nMMMM d"
+        android:format24Hour="EEEE\nMMMM d"
+        android:gravity="end" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_temperature"
         android:orientation="vertical">
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/text_degree"
-                android:layout_width="100dp"
+                android:id="@+id/text_dust"
+                style="@style/WeatherTextStyle"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily=""
-                android:text="14.6°"
-                android:textColor="@android:color/white"
-                android:textSize="40dp" />
+                android:text="미세먼지 "
+                android:textColor="@android:color/white" />
 
-            <ImageView
-                android:id="@+id/weather_icon"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:layout_marginStart="15dp"
-                android:src="@drawable/ic_weather_rain" />
+            <TextView
+                android:id="@+id/text_dust_grade"
+                style="@style/WeatherTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                tools:text="좋음" />
 
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
 
-            <LinearLayout
+            <TextView
+                style="@style/DustValueTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:text="PM10 : " />
 
-                <TextView
-                    android:id="@+id/text_dust"
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:text="미세먼지"
-                    android:textColor="@android:color/white"
-                    android:textSize="23dp" />
+            <TextView
+                android:id="@+id/text_pm_10_value"
+                style="@style/DustValueTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                tools:text="13 ㎍/㎥" />
 
-                <TextView
-                    android:id="@+id/text_dust_grade"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/white"
-                    android:textSize="20dp"
-                    tools:text="좋음" />
+        </LinearLayout>
 
-                <TextView
-                    android:id="@+id/text_pm_10_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/white"
-                    android:textSize="20dp"
-                    tools:text="13 ㎍/㎥" />
-
-            </LinearLayout>
-
-            <ImageView
+        <!--
+        <ImageView
                 android:id="@+id/icon_dust_grade"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="15dp" />
-        </LinearLayout>
-    </LinearLayout>
+        -->
 
-    <LinearLayout
-        android:id="@+id/digital_clock_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:orientation="vertical"
-        android:paddingStart="10dp">
-
-        <TextClock
-            android:id="@+id/text_clock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:textSize="40dp" />
-
-        <TextView
-            android:id="@+id/text_day"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:layout_marginTop="10dp"
-            android:textColor="@android:color/white"
-            android:textSize="23dp"
-            tools:text="Thursday" />
-
-        <TextView
-            android:id="@+id/text_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:textColor="@android:color/white"
-            android:textSize="23dp"
-            tools:text="March 08" />
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/marqueList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/digital_clock_layout"
-        android:layout_marginTop="45dp"
+        android:layout_below="@+id/day_of_the_week"
+        android:layout_marginTop="25dp"
         android:clipToPadding="false"
-        android:nestedScrollingEnabled="false" />
+        android:nestedScrollingEnabled="false"
+        android:orientation="horizontal"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
 
 </RelativeLayout>
