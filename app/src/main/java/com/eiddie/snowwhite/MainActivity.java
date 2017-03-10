@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.eiddie.snowwhite.adapter.NewsScrollAdapter;
 import com.eiddie.snowwhite.model.AirQuality;
 import com.eiddie.snowwhite.model.AirQualityItem;
+import com.eiddie.snowwhite.model.SunRiseSet;
 import com.eiddie.snowwhite.model.Weather;
 import com.eiddie.snowwhite.model.WeatherItem;
 import com.eiddie.snowwhite.service.AirQualityService;
@@ -24,6 +25,7 @@ import com.eiddie.snowwhite.service.WeatherService;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.mcsoxford.rss.RSSFeed;
 import org.mcsoxford.rss.RSSItem;
 import org.mcsoxford.rss.RSSReader;
@@ -66,11 +68,16 @@ public class MainActivity extends Activity {
     private int rainfall;
     private int sky;
     private LinearLayoutManager layoutManager;
+    private String sunRiseTime;
+    private String sunSetTime;
+    private LocalDateTime localDateTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        localDateTime = LocalDateTime.now();
 
         newsRecyclerView = (RecyclerView) findViewById(R.id.marqueList);
         layoutManager = new LinearLayoutManager(this);
@@ -134,11 +141,9 @@ public class MainActivity extends Activity {
 
         }.execute();
 
-        getWeatherInfo();
+        getAreaRiseSetInfo();
         getAirQualityInfo();
-
     }
-
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -153,8 +158,6 @@ public class MainActivity extends Activity {
                 List<AirQualityItem> airQualityItemList = response.body().getAirQualityItemList();
 
                 AirQualityItem airQualityItem = airQualityItemList.get(0);
-
-                Log.d("air",airQualityItem.getTotalAirGrade() + "");
 
                 int airQuality = airQualityItem.getTotalAirGrade();
 
@@ -193,7 +196,7 @@ public class MainActivity extends Activity {
     private void getWeatherInfo() {
         // - 하늘상태(SKY) 코드 : 맑음(1), 구름조금(2), 구름많음(3), 흐림(4)
         // - 강수형태(PTY) 코드 : 없음(0), 비(1), 비/눈(2), 눈(3) 여기서 비/눈은 비와 눈이 섞여 오는 것을 의미 (진눈개비)
-        Call<Weather> call = weatherService.getDegree(LocalDate.now().toString("yyyyMMdd"),LocalDate.now().toString("HHmm"));
+        Call<Weather> call = weatherService.getDegree(LocalDate.now().toString("yyyyMMdd"), LocalDateTime.now().toString("HHmm"));
         call.enqueue(new Callback<Weather>() {
             @Override
             public void onResponse(Call<Weather> call, Response<Weather> response) {
@@ -202,7 +205,6 @@ public class MainActivity extends Activity {
                 List<WeatherItem> weatherItemList = response.body().getResponseItem().getBodyItem().getItems().getWeatherItemList();
                 for (WeatherItem weatherItem : weatherItemList) {
                     if("T1H".equals(weatherItem.getCategory())){
-                        Log.d("degree",""+weatherItem.getObsrValue());
                         degreeTextView.setText(weatherItem.getObsrValue() + " °");
                     }
 
@@ -216,6 +218,7 @@ public class MainActivity extends Activity {
                 }
 
                 ImageView weatherIcon = (ImageView) findViewById(R.id.weather_icon);
+                String currentTime = LocalDateTime.now().toString("hhMMss");
                 if (0 != rainfall){
                     switch (rainfall) {
                         case 1:
@@ -231,10 +234,19 @@ public class MainActivity extends Activity {
                 } else {
                     switch (sky) {
                         case 1:
-                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.clear_night));
+                            if(currentTime.compareTo(sunRiseTime) > 0 && currentTime.compareTo(sunSetTime) < 0){
+                                weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.clear_day));
+                            }else{
+                                weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.clear_night));
+                            }
                             break;
                         case 2:
-                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.partly_cloudy_day));
+                            if(currentTime.compareTo(sunRiseTime) > 0 && currentTime.compareTo(sunSetTime) < 0){
+                                weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.partly_cloudy_day));
+                            }else{
+                                weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.partly_cloudy_night));
+                            }
+
                             break;
                         case 3:
                             weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.cloudy));
@@ -254,6 +266,20 @@ public class MainActivity extends Activity {
     }
 
     private void getAreaRiseSetInfo(){
-        //Call<SunRiseSet> call = sunRiseSetService.getAreaRiseSetInfo("서울", LocalDate.now().toString("yyyyMMdd"));
+        Call<SunRiseSet> call = sunRiseSetService.getAreaRiseSetInfo("서울", LocalDate.now().toString("yyyyMMdd"));
+        call.enqueue(new Callback<SunRiseSet>() {
+            @Override
+            public void onResponse(Call<SunRiseSet> call, Response<SunRiseSet> response) {
+                sunRiseTime = response.body().getResponseItem().getBodySunRiseSetItem().getSunRiseSetItems().getSunRiseSetItem().getSunrise();
+                sunSetTime = response.body().getResponseItem().getBodySunRiseSetItem().getSunRiseSetItems().getSunRiseSetItem().getSunset();
+
+                getWeatherInfo();
+            }
+
+            @Override
+            public void onFailure(Call<SunRiseSet> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
     }
 }

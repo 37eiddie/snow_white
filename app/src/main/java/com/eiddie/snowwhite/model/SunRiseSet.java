@@ -4,26 +4,14 @@ import com.google.gson.annotations.SerializedName;
 
 public class SunRiseSet {
 
-    @SerializedName("sunrise")
-    private int sunrise;
+    @SerializedName("response")
+    ResponseSunRiseSetItem responseItem;
 
-    @SerializedName("sunset")
-    private int sunset;
-
-    public int getSunrise() {
-        return sunrise;
+    public ResponseSunRiseSetItem getResponseItem() {
+        return responseItem;
     }
 
-    public void setSunrise(int sunrise) {
-        this.sunrise = sunrise;
-    }
-
-    public int getSunset() {
-        return sunset;
-    }
-
-    public void setSunset(int sunset) {
-        this.sunset = sunset;
+    public void setResponseItem(ResponseSunRiseSetItem responseItem) {
+        this.responseItem = responseItem;
     }
 }
-
