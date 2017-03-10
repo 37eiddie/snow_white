@@ -77,6 +77,7 @@
                 style="@style/WeatherTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
                 android:textColor="@android:color/white"
                 tools:text="좋음" />
 
@@ -92,7 +93,15 @@
                 style="@style/DustValueTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="PM10 : " />
+                android:text="PM" />
+
+            <TextView
+                style="@style/DustValueTextStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="14dp"
+                android:text="10 " />
 
             <TextView
                 android:id="@+id/text_pm_10_value"
@@ -100,18 +109,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/white"
+                android:layout_marginStart="10dp"
                 tools:text="13 ㎍/㎥" />
 
         </LinearLayout>
-
-        <!--
-        <ImageView
-                android:id="@+id/icon_dust_grade"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="15dp" />
-        -->
 
     </LinearLayout>
 
