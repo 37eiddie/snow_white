@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -76,6 +77,8 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         localDateTime = LocalDateTime.now();
 
@@ -159,29 +162,30 @@ public class MainActivity extends Activity {
 
                 AirQualityItem airQualityItem = airQualityItemList.get(0);
 
-                int airQuality = airQualityItem.getTotalAirGrade();
+                int airQuality = 0;
+                if(!"".equals(airQualityItem.getTotalAirGrade())){
+                    airQuality = Integer.parseInt(airQualityItem.getTotalAirGrade());
+                }
 
                 TextView textDustGrade = (TextView) findViewById(R.id.text_dust_grade);
                 TextView textPm10Value= (TextView) findViewById(R.id.text_pm_10_value);
                 textPm10Value.setText(airQualityItem.getPm10Value()+" ㎍/㎥");
 
-                //ImageView iconDustGrade = (ImageView) findViewById(R.id.icon_dust_grade);
                 switch (airQuality){
                     case 1:
                         textDustGrade.setText("좋음");
-                        //iconDustGrade.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_very_satisfied));
                         break;
                     case 2:
                         textDustGrade.setText("보통");
-                        //iconDustGrade.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_satisfied));
                         break;
                     case 3:
                         textDustGrade.setText("나쁨");
-                        //iconDustGrade.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_dissatisfied));
                         break;
                     case 4:
                         textDustGrade.setText("매우나쁨");
-                        //iconDustGrade.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_very_dissatisfied));
+                        break;
+                    default:
+                        textDustGrade.setText("보통");
                         break;
                 }
             }
@@ -196,7 +200,7 @@ public class MainActivity extends Activity {
     private void getWeatherInfo() {
         // - 하늘상태(SKY) 코드 : 맑음(1), 구름조금(2), 구름많음(3), 흐림(4)
         // - 강수형태(PTY) 코드 : 없음(0), 비(1), 비/눈(2), 눈(3) 여기서 비/눈은 비와 눈이 섞여 오는 것을 의미 (진눈개비)
-        Call<Weather> call = weatherService.getDegree(LocalDate.now().toString("yyyyMMdd"), LocalDateTime.now().toString("HHmm"));
+        Call<Weather> call = weatherService.getDegree(LocalDate.now().toString("yyyyMMdd"), LocalDateTime.now().minusHours(1).toString("HHmm"));
         call.enqueue(new Callback<Weather>() {
             @Override
             public void onResponse(Call<Weather> call, Response<Weather> response) {
@@ -218,7 +222,7 @@ public class MainActivity extends Activity {
                 }
 
                 ImageView weatherIcon = (ImageView) findViewById(R.id.weather_icon);
-                String currentTime = LocalDateTime.now().toString("hhMMss");
+                String currentTime = LocalDateTime.now().toString("HHMMss");
                 if (0 != rainfall){
                     switch (rainfall) {
                         case 1:
