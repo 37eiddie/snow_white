@@ -46,19 +46,24 @@ public class MainActivity extends Activity {
     RSSFeed feed;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Handler resumeHandler = new Handler(Looper.getMainLooper());
+
     private RecyclerView newsRecyclerView;
     private NewsScrollAdapter newsScrollAdapter;
 
     private final Runnable SCROLLING_RUNNABLE = new Runnable() {
-
         @Override
         public void run() {
-            final int duration = 10;
-            final int pixelsToMove = 3;
+            newsRecyclerView.scrollBy(3, 0);
+            mHandler.postDelayed(this, 10);
+        }
+    };
 
-            newsRecyclerView.scrollBy(pixelsToMove, 0);
-
-            mHandler.postDelayed(this, duration);
+    private final Runnable RESUME_RUNNABLE = new Runnable() {
+        @Override
+        public void run() {
+            onResume();
+            resumeHandler.postDelayed(this, 3600000);
         }
     };
 
@@ -71,7 +76,6 @@ public class MainActivity extends Activity {
     private LinearLayoutManager layoutManager;
     private String sunRiseTime;
     private String sunSetTime;
-    private LocalDateTime localDateTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,8 +83,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        localDateTime = LocalDateTime.now();
 
         newsRecyclerView = (RecyclerView) findViewById(R.id.marqueList);
         layoutManager = new LinearLayoutManager(this);
@@ -139,6 +141,7 @@ public class MainActivity extends Activity {
             @Override
             protected void onPostExecute(Void aVoid) {
                 newsScrollAdapter.updateData(feed.getItems());
+                mHandler.removeCallbacks(SCROLLING_RUNNABLE);
                 mHandler.post(SCROLLING_RUNNABLE);
             }
 
@@ -146,6 +149,18 @@ public class MainActivity extends Activity {
 
         getAreaRiseSetInfo();
         getAirQualityInfo();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        resumeHandler.post(RESUME_RUNNABLE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        resumeHandler.removeCallbacks(RESUME_RUNNABLE);
     }
 
     @Override
