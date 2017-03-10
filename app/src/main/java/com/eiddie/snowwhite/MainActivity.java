@@ -19,6 +19,7 @@ import com.eiddie.snowwhite.model.AirQualityItem;
 import com.eiddie.snowwhite.model.Weather;
 import com.eiddie.snowwhite.model.WeatherItem;
 import com.eiddie.snowwhite.service.AirQualityService;
+import com.eiddie.snowwhite.service.SunRiseSetService;
 import com.eiddie.snowwhite.service.WeatherService;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
@@ -60,6 +61,7 @@ public class MainActivity extends Activity {
 
     WeatherService weatherService;
     AirQualityService airQualityService;
+    SunRiseSetService sunRiseSetService;
 
     private int rainfall;
     private int sky;
@@ -97,6 +99,12 @@ public class MainActivity extends Activity {
                 .addConverterFactory(GsonConverterFactory.create()).build();
 
         airQualityService = airQualityRetrofit.create(AirQualityService.class);
+
+        Retrofit sunRiseSetRetrofit = new Retrofit.Builder()
+                .baseUrl("http://apis.data.go.kr/B090041/openapi/service/")
+                .addConverterFactory(GsonConverterFactory.create()).build();
+
+        sunRiseSetService = sunRiseSetRetrofit.create(SunRiseSetService.class);
 
     }
 
@@ -223,7 +231,7 @@ public class MainActivity extends Activity {
                 } else {
                     switch (sky) {
                         case 1:
-                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.clear_day));
+                            weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.clear_night));
                             break;
                         case 2:
                             weatherIcon.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.partly_cloudy_day));
@@ -243,5 +251,9 @@ public class MainActivity extends Activity {
                 Log.e("error",t.getMessage());
             }
         });
+    }
+
+    private void getAreaRiseSetInfo(){
+        //Call<SunRiseSet> call = sunRiseSetService.getAreaRiseSetInfo("서울", LocalDate.now().toString("yyyyMMdd"));
     }
 }
