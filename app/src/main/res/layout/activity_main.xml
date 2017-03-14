@@ -121,7 +121,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/day_of_the_week"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
         android:clipToPadding="false"
         android:nestedScrollingEnabled="false"
         android:orientation="horizontal"
@@ -140,28 +141,43 @@
 
             <ImageView
                 android:id="@+id/image_subway_up"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="70dp"
+                android:layout_height="60dp"
                 android:src="@drawable/ic_directions_subway_white_48dp" />
 
-            <TextView
-                android:id="@+id/text_subway_destination_up"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:background="@android:color/transparent"
-                android:text="문산행"
-                android:textColor="@android:color/white" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/text_subway_destination_up"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@android:color/transparent"
+                    android:text="문산행"
+                    android:textColor="@android:color/white" />
+
+                <ImageView
+                    android:id="@+id/subway_up_refresh_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_autorenew_white_24dp" />
+            </LinearLayout>
 
         </LinearLayout>
 
         <TextView
+            android:id="@+id/text_subway_up"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:fontFamily="sans-serif-thin"
             android:textColor="@android:color/white"
-            android:textSize="50dp"
-            android:text="5m" />
+            android:textSize="20dp"
+            android:gravity="center_vertical"
+            tools:text="[5]번째 전역 (이촌)"/>
 
     </LinearLayout>
 
@@ -179,28 +195,42 @@
 
             <ImageView
                 android:id="@+id/image_subway_down"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_directions_subway_white_48dp" />
+                android:layout_width="70dp"
+                android:layout_height="60dp"
+                android:src="@drawable/ic_directions_subway_white_48dp"/>
 
-            <TextView
-                android:id="@+id/text_subway_destination_down"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:background="@android:color/transparent"
-                android:text="용문행"
-                android:textColor="@android:color/white" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center">
 
+                <TextView
+                    android:id="@+id/text_subway_destination_down"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@android:color/transparent"
+                    android:text="용문행"
+                    android:textColor="@android:color/white" />
+
+                <ImageView
+                    android:id="@+id/subway_down_refresh_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_autorenew_white_24dp" />
+
+            </LinearLayout>
         </LinearLayout>
 
         <TextView
+            android:id="@+id/text_subway_down"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:fontFamily="sans-serif-thin"
             android:textColor="@android:color/white"
-            android:textSize="50dp"
-            android:text="4m" />
+            android:textSize="20dp"
+            android:gravity="center_vertical"
+            tools:text="[5]번째 전역 (이촌)"/>
 
     </LinearLayout>
 

@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,10 +18,12 @@ import android.widget.TextView;
 import com.eiddie.snowwhite.adapter.NewsScrollAdapter;
 import com.eiddie.snowwhite.model.AirQuality;
 import com.eiddie.snowwhite.model.AirQualityItem;
+import com.eiddie.snowwhite.model.MetroInfo;
 import com.eiddie.snowwhite.model.SunRiseSet;
 import com.eiddie.snowwhite.model.Weather;
 import com.eiddie.snowwhite.model.WeatherItem;
 import com.eiddie.snowwhite.service.AirQualityService;
+import com.eiddie.snowwhite.service.MetroService;
 import com.eiddie.snowwhite.service.SunRiseSetService;
 import com.eiddie.snowwhite.service.WeatherService;
 import com.tsengvn.typekit.TypekitContextWrapper;
@@ -76,6 +79,7 @@ public class MainActivity extends Activity {
     private LinearLayoutManager layoutManager;
     private String sunRiseTime;
     private String sunSetTime;
+    private MetroService metroService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +122,14 @@ public class MainActivity extends Activity {
 
         sunRiseSetService = sunRiseSetRetrofit.create(SunRiseSetService.class);
 
+        // http://swopenAPI.seoul.go.kr/api/subway/
+        // 6d5a74656b65646436364a57694870/xml/realtimeStationArrival/0/5/가좌
+        Retrofit metroRetrofit = new Retrofit.Builder()
+                .baseUrl("http://swopenAPI.seoul.go.kr/api/subway/")
+                .addConverterFactory(GsonConverterFactory.create()).build();
+
+        metroService = metroRetrofit.create(MetroService.class);
+
     }
 
     @Override
@@ -149,6 +161,29 @@ public class MainActivity extends Activity {
 
         getAreaRiseSetInfo();
         getAirQualityInfo();
+        getMetroInfo("all");
+
+        metroRefresh();
+    }
+
+    private void metroRefresh() {
+        ImageView subwayUpRefreshIcon = (ImageView) findViewById(R.id.subway_up_refresh_icon);
+        ImageView subwayDownRefreshIcon = (ImageView) findViewById(R.id.subway_down_refresh_icon);
+
+        subwayUpRefreshIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getMetroInfo("up");
+            }
+        });
+
+        subwayDownRefreshIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getMetroInfo("down");
+            }
+        });
+
     }
 
     @Override
@@ -166,6 +201,35 @@ public class MainActivity extends Activity {
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
+    }
+
+    private void getMetroInfo(final String infoType) {
+        Call<MetroInfo> call = metroService.getMetroInfo();
+        call.enqueue(new Callback<MetroInfo>() {
+            @Override
+            public void onResponse(Call<MetroInfo> call, Response<MetroInfo> response) {
+                TextView textSubwayUp = (TextView) findViewById(R.id.text_subway_up);
+                TextView textSubwayDown = (TextView) findViewById(R.id.text_subway_down);
+
+                switch (infoType){
+                    case "all":
+                        textSubwayUp.setText(response.body().getBodyMetroItemList().get(0).getArvlMsg2());
+                        textSubwayDown.setText(response.body().getBodyMetroItemList().get(2).getArvlMsg2());
+                        break;
+                    case "up":
+                        textSubwayUp.setText(response.body().getBodyMetroItemList().get(0).getArvlMsg2());
+                        break;
+                    case "down":
+                        textSubwayDown.setText(response.body().getBodyMetroItemList().get(2).getArvlMsg2());
+                        break;
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MetroInfo> call, Throwable t) {
+                Log.e("error", t.getMessage());
+            }
+        });
     }
 
     private void getAirQualityInfo() {
